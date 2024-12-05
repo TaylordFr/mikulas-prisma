@@ -5,18 +5,26 @@ import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ToysService {
-  constructor(private readonly db: PrismaService){}
-  
-  create(createToyDto: CreateToyDto) {
+  constructor(private readonly db: PrismaService) { }
+
+  async create(createToyDto: CreateToyDto) {
     try {
-      const newToy = this.db.toy.create({
-        data: createToyDto
-      })
+      const existingToy = await this.db.toy.findFirst({
+        where: { name: createToyDto.name },
+      });
 
-      return "New toy has been created: " + newToy
+      if (existingToy) {
+        return { statusCode: 409, message: "A toy with this name already exists!" };
+      }
 
-    } catch (error) {
-      console.error("Error: " + error.message)
+      const newToy = await this.db.toy.create({
+        data: createToyDto,
+      });
+
+      return { statusCode: 201, message: "New toy has been created!", data: newToy };
+    } catch (error: any) {
+      console.error("Error:", error.message);
+      return { statusCode: 500, message: "An error occurred while creating the toy." };
     }
   }
 
@@ -24,43 +32,57 @@ export class ToysService {
     try {
       return this.db.toy.findMany()
     } catch (error) {
-      console.error("Error: " + error.message)
+      return { statusCode: 500, message: error.message }
     }
   }
 
   findOne(id: number) {
     try {
-      return this.db.toy.findUnique({
-        where: {id: id}
+      const target = this.db.toy.findUnique({
+        where: { id: id }
       })
-    } catch (error){
-      console.error("Error: " + error.message)
+
+      if (!target) {
+        return { statusCode: 404, message: "No toy found with ID" };
+      }
+
+      return target
+    } catch (error) {
+      return { statusCode: 500, message: error.message }
     }
   }
 
-  update(id: number, updateToyDto: UpdateToyDto) {
-    try{
-      const updatedToy = this.db.toy.update({
-        where: {id: id},
+  async update(id: number, updateToyDto: UpdateToyDto) {
+    try {
+      const updatedToy = await this.db.toy.update({
+        where: { id: id },
         data: updateToyDto
       })
 
-      return "Toy has been updated: " + updatedToy
-    } catch(error){
-      console.error("Error: "+ error.message)
+      if (!updatedToy) {
+        return false
+      }
+
+      return "Toy has been updated: " + updatedToy.name + ", " + updatedToy.material + ", " + updatedToy.weight
+    } catch (error) {
+      return { statusCode: 500, message: error.message }
     }
   }
 
-  remove(id: number) {
-    try{
-      this.db.toy.delete({
-        where: {id: id}
+  async remove(id: number) {
+    try {
+      const target = await this.db.toy.delete({
+        where: { id: id }
       })
+
+      if (!target) {
+        return false
+      }
 
       return "Toy has been deleted succesfully"
 
-    } catch (error){
-      console.error("Error: "+ error.message)
+    } catch (error) {
+      return { statusCode: 500, message: error.message }
     }
   }
-}
+}  

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ToysService } from './toys.service';
 import { CreateToyDto } from './dto/create-toy.dto';
 import { UpdateToyDto } from './dto/update-toy.dto';
@@ -31,4 +31,6 @@ export class ToysController {
   remove(@Param('id') id: string) {
     return this.toysService.remove(+id);
   }
+
+
 }

@@ -31,4 +31,18 @@ export class KidsController {
   remove(@Param('id') id: string) {
     return this.kidsService.remove(+id);
   }
+
+  @Post(':kidId/toys/:toyId')
+  addToyToKid(@Param('kidId') kidId: string, @Param('toyId') toyId: string){
+    const kidIdInt = parseInt(kidId);
+    const toyIdInt = parseInt(toyId);
+    return this.kidsService.addToyToKid(kidIdInt, toyIdInt);
+  }
+
+  @Delete(':kidId/toys/:toyId')
+  removeToyFromKid(@Param('kidId') kidId: string, @Param('toyId') toyId: string){
+    const kidIdInt = parseInt(kidId);
+    const toyIdInt = parseInt(toyId)
+    return this.kidsService.removeToyFromKid(kidIdInt, toyIdInt)
+  }
 }
