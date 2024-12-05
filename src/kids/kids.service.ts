@@ -44,14 +44,13 @@ export class KidsService {
     }
   }
 
-  update(id: number, updateKidDto: UpdateKidDto) {
+  async update(id: number, updateKidDto: UpdateKidDto) {
     try {
-
-      const updatedKid = this.db.kid.update({
+      const updatedKid = await this.db.kid.update({
         where: {id: id},
         data: updateKidDto
       })
-      
+
       return updatedKid
     } catch (error) {
       console.error("Error: " + error.message)
