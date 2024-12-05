@@ -28,11 +28,17 @@ export class KidsService {
     }
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     try {
-      return this.db.kid.findUnique({
+      const found = await this.db.kid.findUnique({
         where: {id: id}
       })
+
+      if(!found){
+        return "Kid with Id not found!"
+      }
+
+      return found
     } catch (error){
       console.error("Error: " + error.message)
     }
